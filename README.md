@@ -1,15 +1,15 @@
 # Scheduler de Processos com Simulação de Alocação
 
-Este projeto implementa um escalonador de processos capaz de utilizar três políticas de escalonamento:
+Este projeto implementa um escalonador de processos que suporta três políticas de escalonamento:
 - **FIFO (First In, First Out)**
 - **SJF (Shortest Job First)**
 - **RR (Round Robin)**
 
-Além disso, o projeto simula a alocação de memória para os processos utilizando um mock de heap (um array estático). Cada processo possui atributos essenciais, como:
+Além disso, o projeto simula a alocação de memória para os processos utilizando um mock de heap (um array estático). Cada processo possui atributos essenciais, tais como:
 - **PID** – identificador único do processo.
 - **Burst Time** – tempo total necessário para a execução.
-- **Remaining Time** – tempo restante para a conclusão do processo.
-- **State** – estado atual do processo (READY, RUNNING ou TERMINATED).
+- **Remaining Time** – tempo restante para a conclusão.
+- **State** – estado atual (READY, RUNNING ou TERMINATED).
 - **Contexto** – simulação dos registradores para possibilitar a troca de contexto.
 
 ## Funcionalidades
@@ -19,12 +19,16 @@ Além disso, o projeto simula a alocação de memória para os processos utiliza
   - **SJF:** O processo com o menor tempo restante é escolhido para execução.
   - **RR:** Os processos são alternados de forma cíclica, respeitando um quantum de tempo (configurado como 4 ticks por padrão).
 
-- **Alocação de Processos:**
-  - Os processos são criados com a função `create_process()`, que utiliza um mock de heap para alocar a memória.
-  - É possível alterar o número de processos para testar a robustez do sistema de alocação.
+- **Alocação de Processos (Interativa):**
+  - O usuário pode adicionar quantos processos desejar (até o limite máximo, definido como 15) por meio do terminal.
+  - Para cada processo, o usuário informa o burst time.
+  - O endereço base de cada processo é gerado automaticamente (exemplo: 0x1000, 0x2000, 0x3000, etc).
+
+- **Escolha Interativa da Política de Escalonamento:**
+  - Após a criação dos processos, o usuário escolhe qual política utilizar (FIFO, SJF ou RR) por meio de um menu interativo.
 
 - **Simulação de Execução:**
-  - A execução dos processos é simulada por meio de “ticks” do relógio, com mensagens impressas para indicar a troca de contexto e a execução.
+  - A execução dos processos é simulada por meio de "ticks" do relógio. O escalonador roda até que todos os processos sejam finalizados, com mensagens impressas indicando a troca de contexto e a execução.
 
 ## Requisitos
 
@@ -33,7 +37,7 @@ Além disso, o projeto simula a alocação de memória para os processos utiliza
 
 ## Compilação
 
-Para compilar o projeto, execute o seguinte comando no terminal (assegure-se de que todos os arquivos `.c` e `.h` estejam no mesmo diretório):
+Certifique-se de que todos os arquivos `.c` e `.h` estejam no mesmo diretório. Para compilar o projeto, execute:
 
 ```bash
 gcc -o scheduler main.c scheduler.c process.c heap.c screen.c -Wall -Wextra
@@ -41,81 +45,66 @@ gcc -o scheduler main.c scheduler.c process.c heap.c screen.c -Wall -Wextra
 
 ## Execução
 
-Após a compilação, execute o programa com:
+Após a compilação, execute o programa:
 
 ```bash
 ./scheduler
 ```
 
-## Como Testar as Diferentes Políticas de Escalonamento
+## Uso Interativo
 
-O arquivo `main.c` possui a função `test_scheduler()`, que simula vários "ticks" (passos) da execução do escalonador. Para testar cada política:
+Ao executar o programa, o usuário (por exemplo, o professor) poderá:
 
-1. **SJF (Shortest Job First):**  
-   No `main.c`, altere a política para SJF:
-   ```c
-   set_scheduling_policy(SCHED_SJF);
-   ```
-   Execute o programa e verifique se o processo com o menor `remaining_time` é escalonado sempre que possível.
+1. **Adicionar Processos:**
+   - O programa perguntará:  
+     `Deseja adicionar um novo processo? (S/N):`
+   - Se o usuário digitar `S` ou `s`, será solicitado o burst time do processo.
+   - Os processos serão criados com endereços base "mockados" (ex.: 0x1000, 0x2000, 0x3000, ...).
+   - O usuário pode continuar adicionando processos até atingir o limite (15 processos) ou responder com outro caractere para encerrar a adição.
 
-2. **FIFO (First In, First Out):**  
-   Altere para FIFO:
-   ```c
-   set_scheduling_policy(SCHED_FIFO);
-   ```
-   O escalonador deverá executar os processos na ordem em que foram criados, ignorando os tempos de execução.
+2. **Escolher a Política de Escalonamento:**
+   - Após a criação dos processos, um menu interativo permitirá escolher a política de escalonamento:
+     - Digite **1** para FIFO.
+     - Digite **2** para SJF.
+     - Digite **3** para RR.
+   - Caso seja digitada uma opção inválida, o sistema adotará FIFO como padrão.
 
-3. **RR (Round Robin):**  
-   Altere para RR:
-   ```c
-   set_scheduling_policy(SCHED_RR);
-   ```
-   O escalonador deverá alternar entre os processos respeitando o quantum de tempo (4 ticks por padrão).  
-   *Dica:* Para testar um quantum diferente, modifique a variável `time_quantum` em `scheduler.c`.
+3. **Execução do Scheduler:**
+   - O escalonador executará os processos "tick a tick" até que todos os processos sejam finalizados.
+   - Durante a execução, mensagens indicarão as trocas de contexto e qual processo está sendo executado a cada tick.
+   - Ao término, uma mensagem informará que todos os processos foram finalizados.
 
-Após alterar a política desejada, salve, recompile e execute o programa para observar o comportamento.
+## Testando as Diferentes Políticas de Escalonamento
+
+Embora o programa agora seja interativo, você pode testar cada política conforme o menu apresentado. Lembre-se que:
+- **FIFO** executa os processos na ordem de criação.
+- **SJF** escolhe o processo com o menor tempo restante.
+- **RR** alterna entre os processos, respeitando o quantum configurado (4 ticks por padrão).  
+  *Dica:* Para testar um quantum diferente, modifique a variável `time_quantum` em `scheduler.c`.
 
 ## Testando a Alocação de Processos
 
-Além de testar a política de escalonamento, você pode explorar a alocação de processos:
-
-1. **Criação e Identificação dos Processos:**
-   - A função `mock_processes()` em `main.c` cria três processos com diferentes `burst_time`.
-   - Verifique, pela saída do terminal, se os processos são alocados corretamente e identificados pelo seu `PID`.
-
-2. **Simulação da Execução e Finalização:**
-   - Observe as mensagens de "Context switch" e "Running process" que indicam a troca de contexto e a execução.
-   - Verifique se os processos terminam quando o `remaining_time` chega a zero e se o escalonador ignora processos com estado `TERMINATED`.
-
-3. **Modificando o Número de Processos:**
-   - Para testar os limites da alocação, adicione chamadas à função `create_process()` com diferentes `burst_time` na função `mock_processes()`.
-   - Lembre-se de que o mock de heap foi dimensionado para suportar até 15 processos. Caso deseje testar mais, ajuste a constante `MAX_PROCESSES` em `heap.h` e `heap.c`.
-
-## Exemplo de Saída
-
-Ao executar o programa com a política SJF, a saída pode ser semelhante a:
-
-```
-Context switch to process 1
-Running process 1
-Tick 0
-Context switch to process 1
-Running process 1
-...
-Process 1 finished!
-Context switch to process 0
-Running process 0
-Tick 3
-...
-```
+Além de testar a política de escalonamento, você pode explorar a alocação dos processos:
+- **Criação e Identificação:**
+  - Ao adicionar processos, verifique se os processos são alocados corretamente e identificados pelo seu PID.
+- **Simulação da Execução e Finalização:**
+  - Observe as mensagens de "Context switch" e "Running process" indicando a troca de contexto e a execução.
+  - Confirme que, quando o `remaining_time` de um processo chega a zero, ele é marcado como `TERMINATED` e não é mais escalonado.
 
 ## Considerações Finais
 
-- **Round Robin:** Se o processo atual ainda não completou seu quantum, ele continuará a ser executado. Caso contrário, o scheduler buscará o próximo processo ativo.
-- **Heap:** A simulação de heap utiliza um array estático. Assim, os testes com muitos processos podem evidenciar a limitação de memória alocada.
-- **Customizações:** Sinta-se à vontade para alterar os valores de `burst_time`, `time_quantum` ou o número de processos para explorar diferentes cenários e aprofundar o entendimento do comportamento do escalonador.
+- **Round Robin:** O processo atual continuará executando até que seu quantum seja esgotado; depois, o escalonador alterna para o próximo processo ativo.
+- **Heap:** A simulação de heap utiliza um array estático. Testes com muitos processos podem evidenciar a limitação de memória.
+- **Customizações:** Sinta-se à vontade para modificar os valores de `burst_time`, `time_quantum` ou o número máximo de processos (alterando `MAX_PROCESSES` em `heap.h` e `heap.c`) para explorar diferentes cenários.
 
-Este README fornece as instruções necessárias para compilar, executar e testar o projeto. Caso haja dúvidas ou sugestões, os comentários no código e as mensagens impressas no terminal ajudarão na compreensão do funcionamento do sistema.
+## Autor
+
+**Arthur Silva Carneiro**  
+Matrícula: **202006321**
+
+---
+
+Este README fornece todas as instruções necessárias para compilar, executar e testar o projeto. Em caso de dúvidas, os comentários no código e as mensagens impressas no terminal ajudarão na compreensão do funcionamento do sistema.
 
 Boa sorte e bons testes!
 ```
