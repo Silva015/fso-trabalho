@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include "process.h"
+#include <stdint.h>
 
 typedef enum
 {
@@ -17,7 +18,7 @@ extern process_t *next_process;
 void scheduler_init();
 void set_scheduling_policy(sched_policy_t policy);
 process_t *get_next_process();
-void scheduler(int, int, int, int, int, int, int, int, int);
+void scheduler(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 void run_next_process();
 
 #endif

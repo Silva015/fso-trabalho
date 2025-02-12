@@ -1,5 +1,6 @@
 #include "process.h"
 #include "heap.h"
+#include <stdint.h>
 
 process_t *processes[15];
 int process_count = 0;
@@ -13,7 +14,7 @@ void process_init()
 
 process_t *create_process(int *base_address, int burst_time)
 {
-    // kalloc retorna um "ponteiro" mockado (na verdade um int convertido para ponteiro)
+    // kalloc retorna um "ponteiro" mockado
     process_t *process = (process_t *)kalloc(sizeof(process_t));
 
     process->pid = curr_pid++;
@@ -26,7 +27,7 @@ process_t *create_process(int *base_address, int burst_time)
     process->context.ebp = 0;
     process->context.esi = 0;
     process->context.edi = 0;
-    process->context.eip = (int)base_address;
+    process->context.eip = (uintptr_t)base_address;
 
     process->state = READY;
     process->base_address = base_address;

@@ -2,6 +2,7 @@
 #include "screen.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 sched_policy_t current_policy = SCHED_RR;
 int next_sch_pid = 0;
@@ -15,6 +16,13 @@ void scheduler_init()
     next_sch_pid = 0;
     curr_sch_pid = 0;
     rr_quantum_counter = 0;
+}
+
+// Implementação da função que define a política de escalonamento
+void set_scheduling_policy(sched_policy_t policy)
+{
+    current_policy = policy;
+    rr_quantum_counter = 0; // Reinicia o contador de quantum
 }
 
 process_t *get_next_process()
@@ -113,8 +121,8 @@ process_t *get_next_process()
     return next;
 }
 
-void scheduler(int eip, int edi, int esi, int ebp, int esp, int ebx,
-               int edx, int ecx, int eax)
+void scheduler(uintptr_t eip, uintptr_t edi, uintptr_t esi, uintptr_t ebp, uintptr_t esp, uintptr_t ebx,
+               uintptr_t edx, uintptr_t ecx, uintptr_t eax)
 {
     process_t *curr_process = processes[curr_sch_pid];
 
@@ -138,7 +146,8 @@ void scheduler(int eip, int edi, int esi, int ebp, int esp, int ebx,
             curr_process->state = TERMINATED;
             print("Process ");
             printi(curr_process->pid);
-            println(" finished!");
+            print(" finished!");
+            println();
         }
     }
 

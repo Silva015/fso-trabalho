@@ -1,6 +1,8 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <stdint.h>
+
 typedef enum process_state
 {
     READY,
@@ -10,7 +12,7 @@ typedef enum process_state
 
 typedef struct process_context
 {
-    int eax, ecx, edx, ebx, esp, ebp, esi, edi, eip;
+    uintptr_t eax, ecx, edx, ebx, esp, ebp, esi, edi, eip;
 } process_context_t;
 
 typedef struct process
