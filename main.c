@@ -1,7 +1,8 @@
 #include "process.h"
 #include "scheduler.h"
-#include "screen.h" // Mock
-#include "heap.h"   // Mock
+#include "screen.h"  // Mock
+#include "heap.h"    // Mock
+#include <stdbool.h> // Para usar o tipo bool
 
 void mock_processes()
 {
@@ -17,16 +18,35 @@ void mock_processes()
 void test_scheduler()
 {
     // Para testar, altere a política para SCHED_SJF, SCHED_FIFO ou SCHED_RR
-    set_scheduling_policy(SCHED_SJF); // Exemplo: testando SJF
+    set_scheduling_policy(SCHED_RR); // Exemplo: testando SJF
 
-    // Simula ticks do relógio
-    for (int i = 0; i < 10; i++)
+    int tick = 0;
+    // Loop que continua até que todos os processos estejam terminados
+    while (true)
     {
         scheduler(0, 0, 0, 0, 0, 0, 0, 0, 0); // Chamada mockada do scheduler
         run_next_process();
+
         print("Tick ");
-        printi(i);
+        printi(tick);
         println();
+        tick++;
+
+        // Verifica se todos os processos foram finalizados
+        bool allTerminated = true;
+        for (int i = 0; i < process_count; i++)
+        {
+            if (processes[i]->state != TERMINATED)
+            {
+                allTerminated = false;
+                break;
+            }
+        }
+        if (allTerminated)
+        {
+            print("Todos os processos foram finalizados.\n");
+            break;
+        }
     }
 }
 

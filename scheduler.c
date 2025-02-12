@@ -159,9 +159,18 @@ void scheduler(uintptr_t eip, uintptr_t edi, uintptr_t esi, uintptr_t ebp, uintp
         return;
     }
 
-    // Se houver troca de contexto, atualiza os estados
-    if (curr_process != next_proc)
+    // Se o mesmo processo foi selecionado, mas ele ainda não está em RUNNING,
+    // force-o a entrar no estado RUNNING para que seu tempo seja decrementado.
+    if (curr_process == next_proc)
     {
+        if (curr_process->state != RUNNING)
+        {
+            next_proc->state = RUNNING;
+        }
+    }
+    else
+    {
+        // Se houver troca de contexto, atualiza os estados
         if (curr_process && curr_process->state != TERMINATED)
             curr_process->state = READY;
         next_proc->state = RUNNING;
@@ -170,7 +179,7 @@ void scheduler(uintptr_t eip, uintptr_t edi, uintptr_t esi, uintptr_t ebp, uintp
 
     next_process = next_proc;
 
-    // Simula a troca de contexto (o código em assembly foi removido)
+    // Simula a troca de contexto (sem código em assembly)
     print("Context switch to process ");
     printi(next_process->pid);
     println();
